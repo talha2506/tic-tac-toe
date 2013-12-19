@@ -10,7 +10,6 @@ namespace TicTacToe
 
         public Game()
         {
-
         }
 
         private void Initialize()
