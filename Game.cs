@@ -4,12 +4,14 @@ namespace TicTacToe
 {
     public class Game
     {
-        private const int Size = 3;
+        private int[,] m_Spielfeld;
 
-        private int[,] m_Spielfeld = new int[Size, Size];
+        private readonly int Size;
 
-        public Game()
+        public Game(int size)
         {
+            Size = size;
+            m_Spielfeld = new int[Size, Size];
         }
 
         private void Initialize()
@@ -31,11 +33,11 @@ namespace TicTacToe
                 case 1:
                     x = "X";
                     break;
-                case (Size + 1):
-                    x = "O";
-                    break;
                 default:
-                    x = " ";
+                    if (m_Spielfeld[row, column] > Size)
+                        x = "O";
+                    else
+                        x = " ";
                     break;
             }
             return x;
@@ -43,29 +45,29 @@ namespace TicTacToe
 
         private void Display()
         {
-            for (int i = 0; i < Size; i++)
+            for (int row = 0; row < Size; row++)
             {
-                if (i > 0)
-                    Console.WriteLine("---|---|---");
-                for (int j = 0; j < Size; j++)
+                if (row > 0)
+                    Console.WriteLine("---|" + "---|" + "---");
+                for (int column = 0; column < Size; column++)
                 {
-                    if (j > 0)
+                    if (column > 0)
                         Console.Write("|");
 
-                    Console.Write(" {0} ", GetValue(i, j));
+                    Console.Write(" {0} ", GetValue(row, column));
 
                 }
                 Console.WriteLine();
             }
         }
 
-        private bool Input(int playerNumber)
+        private bool Input(IUser player)
         {
-            Console.WriteLine("Spieler {0}", playerNumber);
-            Console.Write("Zeile (1-{0}): ", Size);
-            var rowString = Console.ReadLine();
+            Console.WriteLine("Spieler {0}", player.Number);
             Console.Write("Spalte (1-{0}): ", Size);
-            var columnString = Console.ReadLine();
+            var columnString = player.ReadColumn();
+            Console.Write("Zeile (1-{0}): ", Size);
+            var rowString = player.ReadRow();
             int row;
             bool ok;
             ok = int.TryParse(rowString, out row);
@@ -73,26 +75,26 @@ namespace TicTacToe
             ok &= int.TryParse(columnString, out column);
             if (ok)
             {
-                if (row < 1 || row > 3 || column < 1 || column > 3)
+                if (row < 1 || row > Size || column < 1 || column > Size)
                     ok = false;
             }
             if (!ok)
             {
                 Console.WriteLine("Sie haben einen illegalen Wert eingegeben!");
-                return Input(playerNumber);
+                return Input(player);
             }
             row--;
             column--;
             if (m_Spielfeld[row, column] != 0)
             {
                 Console.WriteLine("Bitte treffen sie eine andere Auswahl!\nDieses Feld ist schon belegt!");
-                return Input(playerNumber);
+                return Input(player);
             }
-            if (playerNumber == 1)
-                m_Spielfeld[row, column] = playerNumber;
+            if (player.Number == 1)
+                m_Spielfeld[row, column] = player.Number;
             else
                 m_Spielfeld[row, column] = 4;
-            return !Playerwins(playerNumber);
+            return !Playerwins(player.Number);
         }
 
         private bool Playerwins(int playerNumber)
@@ -148,14 +150,14 @@ namespace TicTacToe
             return true;
         }
 
-        public void Play()
+        public void Play(IUser[] players)
         {
             Initialize();
             bool continuegame = true;
             for (int i = 0; continuegame && i < Size * Size; i++)
             {
                 Display();
-                continuegame = Input((i%2) + 1);
+                continuegame = Input(players[i%2]);
             }
             if (continuegame)
                 Console.WriteLine("Unentschieden!!!");
