@@ -5,8 +5,7 @@ an easy tic-tac-toe game with AI written in c#
 
 State of Work
 ==============
-The AI is not working yet...
-That means you can only play Multiplayer-Modus...
+Please excuse the bugs...
 
 About
 =====
